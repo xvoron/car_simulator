@@ -1,0 +1,7 @@
+pygame
+numpy
+keras
+collections
+copy
+random
+math
