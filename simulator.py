@@ -509,6 +509,8 @@ class Game_start:
                 self.game = Game_player(WIDTH, HEIGHT)
 
 
+
+
 class Deep_q_agent_new:
     """Realize deep Q learning algorithm
 
