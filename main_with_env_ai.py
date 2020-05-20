@@ -398,6 +398,10 @@ class DQNAgent:
         # When using target network, query it, otherwise main network should be queried
         new_current_states = np.array([transition[3] for transition in minibatch])
         future_qs_list = self.target_model.predict(new_current_states)
+
+
+
+
         # future_qs_list = []
         # for new_current_state in new_current_states:
         #     future_qs_list.append(self.target_model.predict(new_current_state))

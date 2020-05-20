@@ -5,14 +5,15 @@ Enviroment architecture
 """
 
 import pygame
-import car_ai
+import car_module
 import map_module
 import numpy as np
 
 
-class Enviroment():
+class Environment():
 
     ACTION_SPACE_SIZE = 3
+
     def __init__(self, width, height):
         pygame.init()
         pygame.display.set_caption("Car AI learning")
@@ -27,7 +28,7 @@ class Enviroment():
         self.reset_map = False
 
     def reset(self):
-        self.car= car_ai.Car_AI(200,600, 90)
+        self.car= car_module.Car(200,600, 90)
         self.track = map_module.Track()
         self.car.rays.distances(self.track.lines)
         dist_list = self.distances_process(self.car)
@@ -76,7 +77,7 @@ class Enviroment():
             left = False
             right = True
 
-        self.car.input_process(self.dt, [up, down, left, right], space)
+        self.car.input_process_ai(self.dt, [up, down, left, right], space)
 
         col_points = collision_points(self.car.car_body_lines, self.track.lines)
         score_points = collision_points(self.car.car_body_lines, self.track.center_lines)
