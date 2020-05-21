@@ -8,6 +8,7 @@ import pygame
 import car_module
 import map_module
 import numpy as np
+from rays import collision_points
 
 
 class Environment():
@@ -28,33 +29,36 @@ class Environment():
         self.reset_map = False
 
     def reset(self):
-        self.car= car_module.Car(200,600, 90)
+        self.done = False
+        self.car= car_module.Car(200, 600, 90)
         self.track = map_module.Track()
-        self.car.rays.distances(self.track.lines)
+        self.car.rays.distances(self.track.lines, self.screen)
         dist_list = self.distances_process(self.car)
         dist_list = np.asarray(dist_list)
         dist_list = dist_list.reshape(1,7)/700
-        self.draw_all()
+        # self.draw_all() # TODO change draw_all()
+        self.car.update(self.dt)
+        self.car.rays.distance_list = []
 
         self.episode_step = 0
+        cur_state = dist_list
 
-        return dist_list
+        # print("[DEBUG-environment.py] cur_state: {}".format(cur_state))
+        return cur_state
 
     def draw_all(self):
         self.screen.fill((0, 0, 0))
 
         label_score = self.my_font.render("Score: {0}".format(self.car.score),1,(0,255,0))
-        screen.blit(label_score, (1400, 300))
+        self.screen.blit(label_score, (1400, 300))
 
         label_info = self.my_font.render("For move use [UP,DOWN,LEFT,RIGHT], [q] for exit",1,(0,255,0))
         label_velocity = self.my_font.render("Velocity: {0}".format(int(self.car.velocity.x)),1,(0,255,0))
         self.screen.blit(label_velocity, (1400, 200))
         self.screen.blit(label_info, (1100, 30))
-        self.car.update(self.dt)
-        self.car.draw()
-        self.track.draw()
+        self.car.draw(self.screen)
+        self.track.draw(self.screen)
         pygame.display.update()
-        self.car.rays.distance_list = []
         self.clock.tick(self.ticks)
 
 
@@ -86,7 +90,7 @@ class Environment():
             if point:
                 self.car.score += 25
                 if len(self.track.center_lines) == 1:
-                    self.car.score +=100
+                    self.car.score += 100
                     self.done = True
                     break
                 else:
@@ -99,14 +103,20 @@ class Environment():
                     self.done = True
                     self.car.score -= 300
 
-        self.car.rays.distances(self.track.lines)
+        self.car.rays.distances(self.track.lines, self.screen)
         dist_list = self.distances_process(self.car)
         dist_list = np.asarray(dist_list)
         dist_list = dist_list.reshape(1,7)/700
         new_state = dist_list
+        # print("[DEBUG-environment.py] new_state: {}".format(dist_list))
+        self.car.score += self.episode_step * 2
         reward = self.car.score
         return_values = (new_state, reward, self.done)
-#        self.draw_all()
+        # self.draw_all() # TODO draw_all() from train.py
+
+        self.car.update(self.dt)
+        self.car.rays.distance_list = []
+
         return return_values
 
     def distances_process(self, car):

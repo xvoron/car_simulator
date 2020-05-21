@@ -10,7 +10,7 @@ from pygame.math import Vector2
 from math import atan2, cos, sin, sqrt, pi, atan
 from math import radians, degrees, copysign
 
-def draw_rect(center, corners, rotation_angle, color, screen):
+def draw_rect(center, corners, rotation_angle, color):
     """Rotate and draw rectangle
 
     arg: center; type: array -> center of rectangle
@@ -33,10 +33,11 @@ def draw_rect(center, corners, rotation_angle, color, screen):
         temp.append(c_y - length*sin(angle))
         rotated_corners.append(temp)
 
-    # draw rectangular polygon --> car body
-    rect = pygame.draw.polygon(screen, color,
-                               (rotated_corners[0], rotated_corners[1],
-                                rotated_corners[2], rotated_corners[3]))
+    # # draw rectangular polygon --> car body
+    # rect = pygame.draw.polygon(screen, color,
+    #                            (rotated_corners[0], rotated_corners[1],
+    #                             rotated_corners[2], rotated_corners[3]))
+
     return rotated_corners
 
 
@@ -87,11 +88,21 @@ class Car:
         self.angle += degrees(angular_velocity) * dt
         self.rays.update(self.position, self.angle)
 
+        rotated_corners = draw_rect(self.position,
+                                  [[self.position[0]-6, self.position[1]-15],
+                                  [self.position[0]+54, self.position[1]-15],
+                                  [self.position[0]+54, self.position[1]+15],
+                                  [self.position[0]- 6, self.position[1]+15]],
+                                  self.angle, (255,0,0))
+        rc= rotated_corners
+        self.car_body_lines = [[rc[1], rc[0]], [rc[2], rc[1]],
+                               [rc[3], rc[2]], [rc[0], rc[3]]]
+
 
     def ray_distances(self,lines, screen):
         self.rays.distances(lines, screen)
 
-    def input_process(self,dt, action, space=False):
+    def input_process(self, dt, action, space=False):
         up, down, left, right = action[0], action[1], action[2], action[3],
 
         if left:
@@ -130,13 +141,14 @@ class Car:
         self.acceleration = max(-self.max_acceleration,
                                 min(self.acceleration, self.max_acceleration))
 
+
     def input_process_ai(self, dt, action, space=False):
         up, down, left, right = action[0], action[1], action[2], action[3],
 
         if left:
-            self.steering += 30 * dt
+            self.steering += 100 * dt # TODO steering=30
         elif right:
-            self.steering -= 30 * dt
+            self.steering -= 100 * dt
         else:
             self.steering = 0
         self.steering = max( -self.max_steering,
@@ -148,18 +160,20 @@ class Car:
                                 min(self.acceleration, self.max_acceleration))
 
     def draw(self, screen):
+        color = (255, 0, 0)
         self.rays.draw(screen)
         self.draw_ackermann(screen)
-        rotated_corners =draw_rect(self.position,
+        rotated_corners = draw_rect(self.position,
                                   [[self.position[0]-6, self.position[1]-15],
                                   [self.position[0]+54, self.position[1]-15],
                                   [self.position[0]+54, self.position[1]+15],
                                   [self.position[0]- 6, self.position[1]+15]],
-                                  self.angle, (255,0,0), screen)
-        rc= rotated_corners
-        self.car_body_lines = [[rc[1], rc[0]], [rc[2], rc[1]],
-                               [rc[3], rc[2]], [rc[0], rc[3]]]
+                                  self.angle, (255,0,0))
 
+        # draw rectangular polygon --> car body
+        pygame.draw.polygon(screen, color,
+                           (rotated_corners[0], rotated_corners[1],
+                            rotated_corners[2], rotated_corners[3]))
         # self.rays.draw()
 
     def draw_ackermann(self, screen):
@@ -182,8 +196,15 @@ class Car:
                     [center_2_wheel[0]+15,center_2_wheel[1]+30],
                     [center_2_wheel[0]-15,center_2_wheel[1]+30]]
 
-        draw_rect(center_1_wheel,corners1, fi_i, color, screen)
-        draw_rect(center_2_wheel,corners2, fi_o, color, screen)
+        rotated_corners = draw_rect(center_1_wheel,corners1, fi_i, color)
+        pygame.draw.polygon(screen, color,
+                           (rotated_corners[0], rotated_corners[1],
+                            rotated_corners[2], rotated_corners[3]))
+
+        rotated_corners2 = draw_rect(center_2_wheel,corners2, fi_o, color)
+        pygame.draw.polygon(screen, color,
+                           (rotated_corners2[0], rotated_corners2[1],
+                            rotated_corners2[2], rotated_corners2[3]))
         pygame.draw.line(screen, color, center_1_wheel, center_2_wheel)
 
 

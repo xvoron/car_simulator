@@ -8,9 +8,9 @@ import ai
 import car_module
 import map_module
 import numpy as np
-from rays import collision_points
 from environment import Environment
 from player import Game_player
+from train import train
 
 # Global constants
 WIDTH = 1600
@@ -38,31 +38,23 @@ class Game_start:
         global GAME_MODE
         if GAME_MODE == "f":
             mode = "free"
+            Game_player(WIDTH, HEIGHT, mode).run()
         elif GAME_MODE == "r":
             mode = "race"
+            Game_player(WIDTH, HEIGHT, mode).run()
         elif GAME_MODE == "t":
             mode = "train"
+            train()
             # TODO
         elif GAME_MODE == "c":
             mode = "compete"
             # TODO
         else:
             mode = "f"
-
-        self.game = Game_player(WIDTH, HEIGHT, mode)
-
-    def run(self):
-        while not self.game.reset:
-            self.game.run()
-            if self.game.reset == False:
-                pygame.quit()
-                break
-            else:
-                self.game = Game_player(WIDTH, HEIGHT)
+            Game_player(WIDTH, HEIGHT, mode).run()
 
 
 if __name__ == '__main__':
 
-    game_start = Game_start()
-    game_start.run()
+    Game_start()
 

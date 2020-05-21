@@ -8,6 +8,11 @@ import numpy as np
 import random
 import os
 
+from keras.models import Sequential
+from keras.layers import Dense
+from keras.optimizers import Adam
+import time
+
 from collections import deque
 
 """
@@ -16,8 +21,8 @@ https://towardsdatascience.com/reinforcement-learning-w-keras-openai-dqns-1eed3a
 """
 
 class DQN_agent():
-    def __init__(self, env):
-        self.env = env
+    def __init__(self):
+        # self.env = env # TODO
         self.memory = deque(maxlen=2000)
 
         self.gamma = 0.85
@@ -30,25 +35,34 @@ class DQN_agent():
         self.model = self.create_model()
         self.target_model = self.create_model()
 
+        time.sleep(5)
+
+
     def create_model(self):
         model = Sequential()
-        state_shape = self.env.observation_space.shape # TODO
-        model.add(Dense(24, input_dim=state_shape[0], activation="relu"))
+        # state_shape = self.env.observation_space.shape # TODO delete
+        model.add(Dense(24, input_dim=7, activation="relu"))
         model.add(Dense(48, activation="relu"))
         model.add(Dense(24, activation="relu"))
-        model.add(Dense(self.env.action_space.n)) # TODO
+        model.add(Dense(3)) # TODO number
         model.compile(loss="mean_squared_error",
                 optimizer=Adam(lr=self.learning_rate))
         return model
+
+    def action_sample(self):
+        print("[DEBUG] {} random action".format(__name__))
+        return np.random.randint(3) # TODO number
 
     def act(self, state):
         self.epsilon *=self.epsilon_decay
         self.epsilon = max(self.epsilon_min, self.epsilon)
         if np.random.random() < self.epsilon:
-            return self.env.action_space.sample() # TODO
+            return self.action_sample()
+
+        print("[DEBUG] {} action from model".format(__name__))
         return np.argmax(self.model.predict(state)[0])
 
-    def remember(self, state action, reward, new_state, done):
+    def remember(self, state, action, reward, new_state, done):
         self.memory.append([state, action, reward, new_state, done])
 
     def replay(self):
@@ -58,13 +72,13 @@ class DQN_agent():
 
         samples = random.sample(self.memory, batch_size)
         for sample in samples:
-            state, action, reward, new_statem done = sample
+            state, action, reward, new_state, done = sample
             target = self.target_model.predict(state)
             if done:
                 target[0][action] = reward
             else:
                 Q_future = max(self.target_model.predict(new_state)[0])
-                taeget[0][action] = reward + Q_future * self.gamma
+                target[0][action] = reward + Q_future * self.gamma
             self.model.fit(state, target, epochs=1, verbose=0)
 
     def target_train(self):
@@ -81,7 +95,9 @@ class DQN_agent():
 
 
 
-
+"""
+========================= OLD ===================================
+"""
 
 class Network():
     def __init__(self):

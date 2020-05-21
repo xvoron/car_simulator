@@ -22,6 +22,7 @@ from math import atan2, cos, sin, sqrt, pi, atan
 from math import radians, degrees, copysign
 
 # Global functions
+SENSORS_NUMBER = 7
 
 def collision_points(car_lines, map_lines):
     """Calculate collision points in two arrays of lines
@@ -124,7 +125,7 @@ class Rays:
         self.ray_list = []
         self.distance_list = []
         tmp = 0
-        for i in range(7):
+        for i in range(SENSORS_NUMBER):
             self.ray_list.append(Ray(position, angle-90+tmp, i))
             tmp += 30
 
