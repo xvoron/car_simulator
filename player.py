@@ -27,7 +27,7 @@ class Game_player():
         elif mode == "train":
             self.with_track = True
             self.train_mode = True
-        elif mode == "compete":
+        elif mode == "ai_mode":
             self.with_track == True
             self.ai_mode = True
 
@@ -54,6 +54,7 @@ class Game_player():
                         self.exit = True
 
                 keys = pygame.key.get_pressed()
+
                 right, left, up, down, space, quit = False, False, False, False, False, False
                 if keys[pygame.K_RIGHT]:
                     right = True
@@ -91,6 +92,7 @@ class Game_player():
                             if len(track.center_lines) == 1:
                                 track.center_lines.pop(0)
                                 self.reset = True
+                                # track.reset()
                                 break
                             else:
                                 track.center_lines.pop(0)
@@ -116,31 +118,6 @@ class Game_player():
                 self.__init__(WIDTH, HEIGHT, GLOBAL_MODE)
                 # continue
 
-    def save_data(self, distance, button):
-        np.append(self.data_distance, distance, axis=0)
-        np.append(self.data_buttons, button, axis=0)
-
-    def button_process(self,buttons):
-        up, down, left, right = buttons
-
-        if not up and not down and not left and not right:
-            return 0
-        if up and not down and not left and not right:
-            return 1
-        if not up and down and not left and not right:
-            return 2
-        if not up and not down and left and not right:
-            return 3
-        if not up and not down and not left and right:
-            return 4
-        if up and not down and left and not right:
-            return 5
-        if up and not down and not left and right:
-            return 6
-        if not up and down and left and not right:
-            return 7
-        if not up and down and not left and right:
-            return 8
 
 
 if __name__ == "__main__":

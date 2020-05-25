@@ -47,10 +47,10 @@ class Car:
     Do car physics and comunicate with Rays class
     """
     def __init__(self, x, y, angle=0.0, length=50,
-                 max_steering=30, max_acceleration=30.0):
+                 max_steering=30, max_acceleration=30.0, color=(255,0,0)): # max_steering = 30
 
         self.position = Vector2(x, y)
-        self.velocity = Vector2(0.0, 0.0)
+        self.velocity = Vector2(200.0, 0.0)
         self.angle = angle
 
         self.car_width = 50
@@ -59,7 +59,7 @@ class Car:
 
         self.max_acceleration = max_acceleration
         self.max_steering = max_steering
-        self.max_velocity = 300
+        self.max_velocity = 200
         self.brake_deceleration = 1000
         self.free_deceleration = 5
 
@@ -70,6 +70,7 @@ class Car:
 
         self.score = 0
         self.rays = rays.Rays(self.position, self.angle)
+        self.color = color
 
     def update(self, dt):
         self.velocity += (self.acceleration * dt, 0)
@@ -106,9 +107,9 @@ class Car:
         up, down, left, right = action[0], action[1], action[2], action[3],
 
         if left:
-            self.steering += 30 * dt
+            self.steering += 500 * dt
         elif right:
-            self.steering -= 30 * dt
+            self.steering -= 500 * dt
         else:
             self.steering = 0
         self.steering = max( -self.max_steering,
@@ -146,13 +147,18 @@ class Car:
         up, down, left, right = action[0], action[1], action[2], action[3],
 
         if left:
-            self.steering += 100 * dt # TODO steering=30
+            self.steering += 30 * dt # TODO steering=30
         elif right:
-            self.steering -= 100 * dt
+            self.steering -= 30 * dt
         else:
             self.steering = 0
         self.steering = max( -self.max_steering,
                             min(self.steering, self.max_steering))
+
+        # if left:
+        #     self.angle += 100
+        # elif right:
+        #     self.angle -= 100
 
         self.acceleration += 1000 * dt
 
@@ -160,7 +166,6 @@ class Car:
                                 min(self.acceleration, self.max_acceleration))
 
     def draw(self, screen):
-        color = (255, 0, 0)
         self.rays.draw(screen)
         self.draw_ackermann(screen)
         rotated_corners = draw_rect(self.position,
@@ -168,10 +173,10 @@ class Car:
                                   [self.position[0]+54, self.position[1]-15],
                                   [self.position[0]+54, self.position[1]+15],
                                   [self.position[0]- 6, self.position[1]+15]],
-                                  self.angle, (255,0,0))
+                                  self.angle, self.color)
 
         # draw rectangular polygon --> car body
-        pygame.draw.polygon(screen, color,
+        pygame.draw.polygon(screen, self.color,
                            (rotated_corners[0], rotated_corners[1],
                             rotated_corners[2], rotated_corners[3]))
         # self.rays.draw()

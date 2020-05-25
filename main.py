@@ -10,7 +10,8 @@ import map_module
 import numpy as np
 from environment import Environment
 from player import Game_player
-from train import train
+from train import train, ai_race
+from ai_vs_player import AI_vs_Player
 
 # Global constants
 WIDTH = 1600
@@ -20,7 +21,8 @@ GAME_MODE = input("===================== START ======================\n\
 If you want drive car without race-track ----- [f]\n\
 If you want drive car in race-track ---------- [r]\n\
 Train model ---------------------------------- [t]\n\
-Compete with AI ------------------------------ [c]\n\
+AI race with 'succses.model' ----------------- [a]\n\
+Compete with AI #TODO ------------------------ [c]\n\
 > ")
 
 # Initialization of Global properties
@@ -45,9 +47,14 @@ class Game_start:
         elif GAME_MODE == "t":
             mode = "train"
             train()
+        elif GAME_MODE == "a":
+            mode = "ai_mode"
+            ai_race()
+
             # TODO
         elif GAME_MODE == "c":
             mode = "compete"
+            AI_vs_Player().run()
             # TODO
         else:
             mode = "f"

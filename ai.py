@@ -11,6 +11,7 @@ import os
 from keras.models import Sequential
 from keras.layers import Dense
 from keras.optimizers import Adam
+from tensorflow.keras.models import load_model
 import time
 
 from collections import deque
@@ -21,19 +22,31 @@ https://towardsdatascience.com/reinforcement-learning-w-keras-openai-dqns-1eed3a
 """
 
 class DQN_agent():
-    def __init__(self):
-        # self.env = env # TODO
-        self.memory = deque(maxlen=2000)
 
-        self.gamma = 0.85
-        self.epsilon = 1.0
-        self.epsilon_min = .01
-        self.epsilon_decay = .995
-        self.learning_rate = .005
-        self.tau = .125
+    def __init__(self, mode_or_load_model="train"):
 
-        self.model = self.create_model()
-        self.target_model = self.create_model()
+        self.mode = mode_or_load_model
+
+        if self.mode == "train":
+            print("[INFO] train mode")
+            self.memory = deque(maxlen=50000)
+
+            self.gamma = 0.9
+            self.epsilon = 1.0
+            self.epsilon_min = .01
+            self.epsilon_decay = .99995
+            self.learning_rate = .01
+            self.tau = .125
+
+            self.model = self.create_model()
+            self.target_model = self.create_model()
+
+        else:
+            print("[INFO] ai race mode")
+            self.model = load_model(mode_or_load_model)
+            print(self.model.summary())
+            print("[INFO] Model was loaded")
+
 
         time.sleep(5)
 
@@ -41,31 +54,35 @@ class DQN_agent():
     def create_model(self):
         model = Sequential()
         # state_shape = self.env.observation_space.shape # TODO delete
-        model.add(Dense(24, input_dim=7, activation="relu"))
-        model.add(Dense(48, activation="relu"))
-        model.add(Dense(24, activation="relu"))
+        model.add(Dense(14, input_dim=7, activation="relu"))
+        # model.add(Dense(48, activation="relu"))
+        model.add(Dense(28, activation="relu"))
+        model.add(Dense(14, activation="relu"))
         model.add(Dense(3)) # TODO number
         model.compile(loss="mean_squared_error",
                 optimizer=Adam(lr=self.learning_rate))
+        print("[INFO] model was created:")
+        print(model.summary())
         return model
 
     def action_sample(self):
-        print("[DEBUG] {} random action".format(__name__))
         return np.random.randint(3) # TODO number
 
     def act(self, state):
-        self.epsilon *=self.epsilon_decay
-        self.epsilon = max(self.epsilon_min, self.epsilon)
-        if np.random.random() < self.epsilon:
-            return self.action_sample()
-
-        print("[DEBUG] {} action from model".format(__name__))
-        return np.argmax(self.model.predict(state)[0])
+        if self.mode == "train":
+            self.epsilon *= self.epsilon_decay
+            self.epsilon = max(self.epsilon_min, self.epsilon)
+            if np.random.random() < self.epsilon:
+                return self.action_sample()
+            return np.argmax(self.model.predict(state)[0])
+        else:
+            return np.argmax(self.model.predict(state)[0])
 
     def remember(self, state, action, reward, new_state, done):
         self.memory.append([state, action, reward, new_state, done])
 
     def replay(self):
+        # print("[INFO] func: replay")
         batch_size = 32
         if len(self.memory) < batch_size:
             return
@@ -82,6 +99,7 @@ class DQN_agent():
             self.model.fit(state, target, epochs=1, verbose=0)
 
     def target_train(self):
+        # print("[INFO] func: target_train")
         weights = self.model.get_weights()
         target_weights = self.target_model.get_weights()
         for i in range(len(target_weights)):
@@ -91,8 +109,6 @@ class DQN_agent():
 
     def save_model(self, fn):
         self.model.save(fn)
-
-
 
 
 """
@@ -231,7 +247,7 @@ class Deep_q_agent:
         self.epsilon = 0.7 # exploration rate
         self.epsilon_min = 0.01
         self.epsilon_decay = 0.995
-        self.learning_rate = 0.001
+        self.learning_rate = 0.01
         self.model = self._build_model()
         # NEW CODE
         self.target_model = self._build_model()

@@ -82,6 +82,7 @@ class Ray:
                           self.pos[1] - self.ray_length * sin(self.angle)]
         self.ray_line = [[self.pos, self.end_point]]
         # self.intersection_line = [[self.pos, self.end_point]]
+        self.intersection_points = []
 
     def update(self, position, angle):
         self.angle = radians(angle)
@@ -95,9 +96,8 @@ class Ray:
         for point in points:
             if point:
                 self.distance = self.calculate_distance(point)
-                pygame.draw.circle(screen, (255, 0, 0),
-                                   (int(point[0]), int(point[1])), 4)
-                # self.intersection_line = [[self.pos],[point]]
+
+                self.intersection_points.append([int(point[0]), int(point[1])])
                 return [self.ID, self.distance]
             else:
                 self.distance = None
@@ -110,9 +110,13 @@ class Ray:
         pygame.draw.line(screen, (0, 0, 0),
                          self.ray_line[0][0],
                          self.ray_line[0][1])
+        self.draw_intersection(screen)
 
     def draw_intersection(self, screen):
-        pass
+        for point in  self.intersection_points:
+            pygame.draw.circle(screen, (255, 0, 0),
+                               (int(point[0]), int(point[1])), 4)
+        self.intersection_points = []
 
 
 

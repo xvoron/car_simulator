@@ -24,6 +24,7 @@ class Environment():
         self.ticks = 60
         self.done = False
         self.dt = 0
+        self.info = None
 
 
         self.reset_map = False
@@ -35,13 +36,15 @@ class Environment():
         self.car.rays.distances(self.track.lines, self.screen)
         dist_list = self.distances_process(self.car)
         dist_list = np.asarray(dist_list)
-        dist_list = dist_list.reshape(1,7)/700
+        dist_list = dist_list / 700
+        # dist_list = np.append(dist_list, self.car.velocity.x / self.car.max_velocity)
+
         # self.draw_all() # TODO change draw_all()
         self.car.update(self.dt)
         self.car.rays.distance_list = []
 
         self.episode_step = 0
-        cur_state = dist_list
+        cur_state = dist_list.reshape(1,7)
 
         # print("[DEBUG-environment.py] cur_state: {}".format(cur_state))
         return cur_state
@@ -68,7 +71,8 @@ class Environment():
         pygame.time.delay(10)
         self.episode_step += 1
 
-        case = np.argmax(action)
+        # case = np.argmax(action)
+        case = action
         up, down, left, right, space = False,False,False,False,False
 
         if case == 0:
@@ -88,10 +92,11 @@ class Environment():
 
         for point in score_points:
             if point:
-                self.car.score += 25
+                self.car.score += 300
                 if len(self.track.center_lines) == 1:
-                    self.car.score += 100
-                    self.done = True
+                    self.car.score += 10000
+                    # self.done = True
+                    # self.track.reset()
                     break
                 else:
                     self.track.center_lines.pop(0)
@@ -101,17 +106,19 @@ class Environment():
             for j in i:
                 if j != None:
                     self.done = True
-                    self.car.score -= 300
+                    self.car.score -= 20000
+                    break
 
         self.car.rays.distances(self.track.lines, self.screen)
         dist_list = self.distances_process(self.car)
         dist_list = np.asarray(dist_list)
-        dist_list = dist_list.reshape(1,7)/700
-        new_state = dist_list
+        new_state = (dist_list / 700).reshape(1,7)
+        # new_state = np.append(dist_list,
+        #        self.car.velocity.x / self.car.max_velocity).reshape(1,8)
         # print("[DEBUG-environment.py] new_state: {}".format(dist_list))
-        self.car.score += self.episode_step * 2
+        self.car.score += int(self.episode_step * 0.1)
         reward = self.car.score
-        return_values = (new_state, reward, self.done)
+        return_values = (new_state, reward, self.done, self.info)
         # self.draw_all() # TODO draw_all() from train.py
 
         self.car.update(self.dt)

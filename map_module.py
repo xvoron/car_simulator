@@ -55,7 +55,9 @@ class Track:
 
     def reset(self):
         # TODO
-        self.center_lines = self.lines_original[:len(self.lines_original)]
+        self.center_lines.append(self.lines_original)
+
+
 
 
 
