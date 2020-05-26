@@ -3,13 +3,20 @@
 This project is my attempt to learn Pygame library and to understand
 basics of Deep Q-learning algorithm.
 
-# TODO
+## Installation
 
-  - \[x\] Environment
-  - <span class="done2"></span>refactoring
-  - <span class="done0"></span>solve \# TODO
+    $cat requirements.txt
+    pygame
+    numpy
+    keras
+    collections
+    copy
+    random
+    math
+    
+    $pip install -r requirements.txt
 
-# Using
+## Usage
 
 ``` 
     $python main.py
@@ -17,29 +24,25 @@ basics of Deep Q-learning algorithm.
     If you want drive car without race-track --- [f] 
     If you want drive car in race-track -------- [r]
     Train model -------------------------------- [t]
+    AI drive car with 'succses.model' ---------- [a]
     Competitive with AI ------------------------ [c]
     >
 ```
 
-# Files
+## Files
 
-  - ai.py:
-      - class Nework - create a network.
-      - class ReplayMemory - create a memory from where we will take a
-        samples.
-      - DQL\\\_agent - main part of the algorithm
+  - script/
+      - ai.py: DQL\_agent - main part of the algorithm.
+      - car\_module.py: Car dynamics and engine.
+      - environment.py: Environment for DQL\_agent usage.
+      - map\_module.py: Race-track.
+      - rays.py: Geometrical rays implementation (Lidar for car).
+      - train.py: Training model functions.
+      - player.py: Player logic module.
+      - ai\_vs\_player.py: Pre-trained model 'success.model' vs player.
+  - main.py: Main script.
+  - success.model: Model after 10000 iterations
 
-<!-- end list -->
+## TODO
 
-  - car\_module.py
-  - environment.py
-      - class Environment
-  - main.py
-      - class Game\_start
-  - map\_module.py
-      - class Track
-  - rays.py:
-      - class Ray - class to manipulate with one geometrical Ray
-      - class Rays - create and manipulate with bunch of rays (wraper
-      - for class Ray)
-  - simulator.py: all in one. Old file.
+  - <span class="done0"></span>Debug ai\_vs\_player.py
